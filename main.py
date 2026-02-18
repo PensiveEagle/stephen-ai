@@ -50,7 +50,7 @@ prompt = ChatPromptTemplate([
 
 # chain = prompt | llm | StrOutputParser()
 agent = create_openai_tools_agent( llm, tools, prompt )
-agent_exec = AgentExecutor( agent = agent, tools = tools, verbose = True )
+agent_exec = AgentExecutor( agent = agent, tools = tools, verbose = False )
 
 history = []
 while True:
