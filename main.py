@@ -19,7 +19,7 @@ gemini_api_key = os.getenv( "GEMINI_API_KEY" )
 # ----- Initialise Todoist API ----- #
 todoist = TodoistAPI( todoist_api_key )
 
-# ----- Define Functions ----- #
+# ----- Define Tools ----- #
 @tool
 def add_task(task, task_description = None):
     '''
@@ -30,16 +30,32 @@ def add_task(task, task_description = None):
     todoist.add_task( content = task, description = task_description )
     
     print( f"{task} added" )
+    
+@tool
+def show_tasks():
+    '''
+    Show all tasks from todoist. Use this tools when the user wants to see a list of tasks
+    '''
+    tasks_response = todoist.get_tasks()
+    tasks = []
+    for task_list in tasks_response:
+        for task in task_list:
+            tasks.append( task.content )
+    return tasks
 
 # ----- Langchain ----- #
-tools = [ add_task ]
+tools = [ add_task, show_tasks ]
 llm = ChatGoogleGenerativeAI(
     model = "gemini-2.5-flash",
     google_api_key = gemini_api_key,
     temperature = 0.3
 )
 
-system_prompt = "You are a helpful assistant. You will help the user at tasks"
+system_prompt = '''
+You are a helpful assistant. 
+You will help the user at tasks.
+You will help the user view existing tasks. If the user asks to show the tasks print them out in a bullet list
+'''
 
 prompt = ChatPromptTemplate([
     ( "system", system_prompt ),
